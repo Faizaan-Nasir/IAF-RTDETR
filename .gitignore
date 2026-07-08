@@ -1,5 +1,7 @@
 archive.zip
-extracted_dataset/*
+extracted_dataset
 .venv311
 .venv311sys
-datasets/*
+datasets
+__pycache__
+runs

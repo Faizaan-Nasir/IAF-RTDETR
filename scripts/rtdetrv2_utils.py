@@ -122,8 +122,11 @@ def variant_config_overrides(variant: str, epochs: int) -> dict:
     return overrides
 
 
-def write_dataset_config(repo_pytorch_dir: Path, dataset_name: str, workers: int) -> Path:
+def write_dataset_config(
+    repo_pytorch_dir: Path, dataset_root: Path, dataset_name: str, workers: int
+) -> Path:
     config_path = repo_pytorch_dir / "configs" / "dataset" / f"{dataset_name}_detection.yml"
+    dataset_root = dataset_root.resolve()
     config = {
         "task": "detection",
         "evaluator": {
@@ -131,13 +134,13 @@ def write_dataset_config(repo_pytorch_dir: Path, dataset_name: str, workers: int
             "iou_types": ["bbox"],
         },
         "num_classes": 1,
-        "remap_mscoco_category": False,
+        "remap_mscoco_category": True,
         "train_dataloader": {
             "type": "DataLoader",
             "dataset": {
                 "type": "CocoDetection",
-                "img_folder": f"./dataset/{dataset_name}/train/",
-                "ann_file": f"./dataset/{dataset_name}/annotations/instances_train.json",
+                "img_folder": str((dataset_root / "train").resolve()) + "/",
+                "ann_file": str((dataset_root / "annotations" / "instances_train.json").resolve()),
                 "return_masks": False,
                 "transforms": {
                     "type": "Compose",
@@ -155,8 +158,8 @@ def write_dataset_config(repo_pytorch_dir: Path, dataset_name: str, workers: int
             "type": "DataLoader",
             "dataset": {
                 "type": "CocoDetection",
-                "img_folder": f"./dataset/{dataset_name}/val/",
-                "ann_file": f"./dataset/{dataset_name}/annotations/instances_val.json",
+                "img_folder": str((dataset_root / "val").resolve()) + "/",
+                "ann_file": str((dataset_root / "annotations" / "instances_val.json").resolve()),
                 "return_masks": False,
                 "transforms": {
                     "type": "Compose",
@@ -218,6 +221,7 @@ def prepare_rtdetrv2_workspace(
     dataset_link = ensure_repo_dataset_link(repo_pytorch_dir, dataset_root, dataset_name)
     dataset_config = write_dataset_config(
         repo_pytorch_dir=repo_pytorch_dir,
+        dataset_root=dataset_root,
         dataset_name=dataset_name,
         workers=workers,
     )
