@@ -1,0 +1,5 @@
+archive.zip
+extracted_dataset/*
+.venv311
+.venv311sys
+datasets/*
